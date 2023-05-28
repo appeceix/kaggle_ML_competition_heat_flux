@@ -42,11 +42,33 @@ class ImputadorCategoricas(BaseEstimator, TransformerMixin):
         x_copy['geometry'] = x_copy['geometry'].fillna('tube')
         return x_copy
     
-def preprocesamiento_train():
-    pass
-
-def preprocesamiento_test():
-    pass
+def plot_learning_curve(estimator, X, y, cv, train_sizes=np.linspace(0.1, 1.0, 10)):
+    train_sizes, train_scores, test_scores = learning_curve(
+        estimator, X, y, cv=cv, train_sizes=train_sizes, scoring='neg_mean_squared_error'
+    )
+    
+    train_scores_mean = -np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = -np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+    
+    plt.figure(figsize=(8, 6))
+    plt.plot(train_sizes, train_scores_mean, 'o-', color='r', label='Entrenamiento')
+    plt.plot(train_sizes, test_scores_mean, 'o-', color='g', label='Prueba')
+    plt.fill_between(
+        train_sizes, train_scores_mean - train_scores_std,
+        train_scores_mean + train_scores_std, alpha=0.1, color='r'
+    )
+    plt.fill_between(
+        train_sizes, test_scores_mean - test_scores_std,
+        test_scores_mean + test_scores_std, alpha=0.1, color='g'
+    )
+    plt.xlabel('Tamaño del conjunto de entrenamiento')
+    plt.ylabel('Pérdida')
+    plt.title('Curva de aprendizaje')
+    plt.legend(loc='best')
+    plt.grid(True)
+    plt.show()
 
 def csv_datos(nombre_archivo, data):
     '''Guarda el dataframe data en un archivo csv con nombre nombre_archivo
